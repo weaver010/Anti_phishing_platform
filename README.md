@@ -104,7 +104,49 @@ If migration fails, try:
 php artisan migrate:fresh --seed
 ```
 
-### 6. Configure Cache & Queue (Optional)
+### 6. Set Up and Run Redis
+
+Redis is required for caching and queue processing in this application.
+
+#### Installing Redis on Windows:
+Windows users can use Redis through WSL2 or use the Windows port:
+
+1. Download Redis for Windows from [https://github.com/microsoftarchive/redis/releases](https://github.com/microsoftarchive/redis/releases)
+2. Extract the zip file to a location of your choice (e.g., `C:\Redis`)
+3. Open PowerShell and navigate to the Redis directory:
+   ```
+   cd C:\Redis
+   ```
+4. Start the Redis server:
+   ```
+   .\redis-server.exe
+   ```
+
+#### Installing Redis on macOS:
+```
+brew install redis
+brew services start redis
+```
+
+#### Installing Redis on Linux:
+```
+sudo apt update
+sudo apt install redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
+#### Configure Redis in .env:
+Make sure your `.env` file has the correct Redis configuration:
+```
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+CACHE_DRIVER=redis
+QUEUE_CONNECTION=redis
+```
+
+### 7. Configure Cache & Queue (Optional)
 
 ```
 php artisan cache:clear
@@ -124,7 +166,7 @@ For processing specific queues (recommended for production):
 php artisan queue:work --queue=file-scanning,url-scanning
 ```
 
-### 7. Start the Application
+### 8. Start the Application
 
 ```
 php artisan serve
