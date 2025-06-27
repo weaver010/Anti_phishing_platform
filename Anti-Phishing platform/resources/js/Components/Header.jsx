@@ -214,8 +214,8 @@ function Header({ auth }) {
                                 whileTap="tap"
                                 className="w-full sm:w-auto"
                             >
-                                <Link
-                                    href={route('url.check')}
+                                <a
+                                    href="/quick-url-scan"
                                     className="inline-flex items-center justify-center w-full gap-3 px-12 py-4 text-lg font-semibold text-white transition-colors duration-300 rounded-full group bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 sm:w-auto"
                                 >
                                     <svg
@@ -233,7 +233,7 @@ function Header({ auth }) {
                                         />
                                     </svg>
                                     <span>Quick URL Scan</span>
-                                </Link>
+                                </a>
                             </motion.div>
 
                             {/* Profile Button */}

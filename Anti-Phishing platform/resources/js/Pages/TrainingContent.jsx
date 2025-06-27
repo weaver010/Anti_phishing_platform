@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { router } from '@inertiajs/react';
 import MyProgress from './MyProgress';
+import useAuthStore from '../stores/authStore';
 import { 
   BookOpen, 
+  GraduationCap, 
   Newspaper, 
   Video, 
   BarChart3, 
@@ -144,6 +147,7 @@ const EXTERNAL_RESOURCES = [
 ];
 
 const TrainingContent = () => {
+  const { isAuthenticated } = useAuthStore();
   const [activeTab, setActiveTab] = useState('awareness');
   const [contents, setContents] = useState([]);
   const [completedAwareness, setCompletedAwareness] = useState(() => getInitialCompleted('completedAwareness', false));
@@ -155,6 +159,18 @@ const TrainingContent = () => {
   const [tip, setTip] = useState('');
   const [feedback, setFeedback] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState(null);
+
+  // Authentication check - redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.visit('/login');
+    }
+  }, [isAuthenticated]);
+
+  // Don't render anything if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/api/training-contents')
@@ -176,7 +192,6 @@ const TrainingContent = () => {
   );
 
   // Dynamic totals
-  const totalVideos = contents.filter(c => c.type === 'video').length;
   const totalArticles = securityAwarenessBlogs.length + phishingAwarenessBlogs.length;
 
   // Dynamic progress
@@ -190,7 +205,7 @@ const TrainingContent = () => {
   const totals = {
     awareness: 1,
     articles: totalArticles,
-    videos: totalVideos,
+    videos: contents.filter(c => c.type === 'video').length,
     updates: 2
   };
 

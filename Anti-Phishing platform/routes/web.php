@@ -6,6 +6,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UrlScanController;
 use App\Http\Controllers\MalwareDetectionController;
 use App\Http\Controllers\CyberNewsController;
+use App\Http\Controllers\QuickUrlScanController;
 //********** */
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -75,7 +76,7 @@ Route::get('/malware-api-test', [MalwareDetectionController::class, 'testApiConn
 
 Route::get('/training', function () {
     return Inertia::render('TrainingContent');
-})->middleware('auth')->name('training');
+})->middleware(['auth', 'verified'])->name('training');
 
 Route::get('/updates', [CyberNewsController::class, 'index'])->name('updates');
 
@@ -107,6 +108,11 @@ Route::get('/simulation/results', function () {
         'totalSteps' => 5,
     ]);
 })->name('simulation.results');
+
+Route::get('/quick-url-scan', function () {
+    return Inertia::render('QuickScanPage');
+});
+Route::post('/quick-url-scan', [QuickUrlScanController::class, 'scan']);
 
 // Firefox Extension route
 Route::get('/firefox-extension', function () {

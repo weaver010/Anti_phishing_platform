@@ -10,6 +10,7 @@ use App\Http\Controllers\TrainingContentController;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Api\SecurityNewsController;
 use App\Http\Controllers\Api\CyberNewsController;
+use App\Http\Controllers\Api\FeedbackController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,6 +25,7 @@ use App\Http\Controllers\Api\CyberNewsController;
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/feedback', [FeedbackController::class, 'store']);
 
 Route::get('/training-contents', [TrainingContentController::class, 'index']);
 

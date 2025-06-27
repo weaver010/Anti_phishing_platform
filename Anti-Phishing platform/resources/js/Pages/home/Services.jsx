@@ -45,15 +45,15 @@ const Services = memo(() => {
             category: "monitoring",
             icon: "bell"
         },
-        // {
-        //     id: 5,
-        //     title: "Phishing Simulation",
-        //     description: "Simulate real-world phishing attacks to train and fortify your team's defenses.",
-        //     image: "/assets/simulation.jpg",
-        //     link: "/simulation",
-        //     category: "training",
-        //     icon: "users"
-        // },
+        {
+            id: 5,
+            title: "Phishing Simulation",
+            description: "Simulate real-world phishing attacks to train and fortify your team's defenses.",
+            image: "/assets/simulation.jpg",
+            link: "/simulation",
+            category: "training",
+            icon: "users"
+        },
         {
             id: 6,
             title: "Training Content",

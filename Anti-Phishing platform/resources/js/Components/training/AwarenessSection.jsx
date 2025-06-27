@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, PlayCircle, Clock, BookOpen, Newspaper, Video, BarChart3, Shield } from 'lucide-react';
+import { CheckCircle2, PlayCircle, Clock, BookOpen, GraduationCap, Newspaper, Video, BarChart3, Shield } from 'lucide-react';
 
 const AwarenessSection = ({ completedAwareness, handleCompleteAwareness }) => {
   return (
