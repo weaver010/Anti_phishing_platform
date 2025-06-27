@@ -37,7 +37,17 @@ class ScanFileJob implements ShouldQueue
      *
      * @var int
      */
-    public $timeout = 300; // 5 minutes
+    public $timeout = 600; // 10 minutes
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @return array
+     */
+    public function backoff()
+    {
+        return [60, 120, 240]; // 1m, 2m, 4m
+    }
 
     /**
      * Create a new job instance.
@@ -237,7 +247,7 @@ class ScanFileJob implements ShouldQueue
             
             // Update status to error with appropriate message
             Cache::put($statusKey, [
-                'status' => 'completed',
+                'status' => 'failed',
                 'progress' => 100,
                 'message' => 'Error checking hash: ' . $results['error'],
                 'fileName' => $this->fileName,
@@ -400,32 +410,11 @@ class ScanFileJob implements ShouldQueue
             'fileSize' => $this->fileSize
         ], 3600);
         
-        // Wait a few seconds to allow analysis to begin
-        sleep(5);
-        
-        // Get analysis results
-        $results = $virusTotal->getAnalysis($analysisId);
-        
+        // Wait for analysis to complete
+        $results = $virusTotal->waitForAnalysisCompletion($analysisId, 10, 15);
+
         // Check if the job has been cancelled
         if ($this->checkIfCancelled($statusKey)) {
-            return;
-        }
-        
-        // Check if analysis is still in progress
-        $status = $results['data']['attributes']['status'] ?? null;
-        if ($status === 'queued') {
-            // If still queued, retry with backoff
-            $this->release(30);
-            
-            // Update status
-            Cache::put($statusKey, [
-                'status' => 'processing',
-                'progress' => 70,
-                'message' => 'Analysis in progress, waiting for results',
-                'fileName' => $this->fileName,
-                'fileSize' => $this->fileSize
-            ], 3600);
-            
             return;
         }
         
@@ -487,4 +476,4 @@ class ScanFileJob implements ShouldQueue
         
         return false;
     }
-} 
+}

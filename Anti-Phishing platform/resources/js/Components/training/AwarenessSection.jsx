@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, PlayCircle, Clock, BookOpen, GraduationCap, Newspaper, Video, BarChart3, Shield } from 'lucide-react';
+import { CheckCircle2, PlayCircle, Clock, BookOpen, Newspaper, Video, BarChart3, Shield } from 'lucide-react';
 
 const AwarenessSection = ({ completedAwareness, handleCompleteAwareness }) => {
   return (
@@ -23,15 +23,6 @@ const AwarenessSection = ({ completedAwareness, handleCompleteAwareness }) => {
                   </h2>
                   <p className="text-blue-100">
                     Master the fundamentals of phishing defense through expert-led security protocols and best practices. Learn to identify and prevent sophisticated cyber threats.
-                  </p>
-                </div>
-                <div className="bg-[#22304a] p-6 rounded-lg">
-                  <h2 className="text-2xl font-bold text-blue-300 mb-4 flex items-center gap-2">
-                    <GraduationCap className="w-6 h-6" />
-                    Modules
-                  </h2>
-                  <p className="text-blue-100">
-                    Engage with structured learning pathways designed to enhance your cybersecurity knowledge and skills through interactive lessons and practical exercises.
                   </p>
                 </div>
                 <div className="bg-[#22304a] p-6 rounded-lg">

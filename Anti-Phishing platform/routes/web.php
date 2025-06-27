@@ -75,7 +75,7 @@ Route::get('/malware-api-test', [MalwareDetectionController::class, 'testApiConn
 
 Route::get('/training', function () {
     return Inertia::render('TrainingContent');
-})->name('training');
+})->middleware('auth')->name('training');
 
 Route::get('/updates', [CyberNewsController::class, 'index'])->name('updates');
 
@@ -91,6 +91,22 @@ Route::get('/privacy', function () {
 Route::get('/terms', function () {
     return Inertia::render('TermsOfService');
 })->name('terms');
+
+// Simulation Routes
+Route::get('/simulation', function () {
+    return Inertia::render('Simulation');
+})->name('simulation');
+
+Route::get('/simulation/email', function () {
+    return Inertia::render('EmailPhishingSimulation');
+})->name('simulation.email');
+
+Route::get('/simulation/results', function () {
+    return Inertia::render('SimulationResult', [
+        'score' => request()->session()->get('simulation_score', 80), // Default to 80 for now
+        'totalSteps' => 5,
+    ]);
+})->name('simulation.results');
 
 // Firefox Extension route
 Route::get('/firefox-extension', function () {

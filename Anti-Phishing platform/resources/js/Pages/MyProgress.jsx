@@ -3,7 +3,6 @@ import React from 'react';
 const MyProgress = ({ progress, totals, setActiveTab }) => {
   const sections = [
     { key: 'awareness', label: 'Awareness', color: 'bg-blue-500', icon: '📘' },
-    { key: 'modules', label: 'Modules', color: 'bg-blue-400', icon: '📚' },
     { key: 'articles', label: 'Articles', color: 'bg-cyan-400', icon: '📰' },
     { key: 'videos', label: 'Videos', color: 'bg-green-400', icon: '🎥' },
     // { key: 'updates', label: 'Updates', color: 'bg-gray-400' },

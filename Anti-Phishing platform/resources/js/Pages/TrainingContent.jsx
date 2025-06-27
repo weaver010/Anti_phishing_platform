@@ -3,7 +3,6 @@ import axios from 'axios';
 import MyProgress from './MyProgress';
 import { 
   BookOpen, 
-  GraduationCap, 
   Newspaper, 
   Video, 
   BarChart3, 
@@ -15,7 +14,6 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import AwarenessSection from '../components/training/AwarenessSection';
-import ModulesSection from '../components/training/ModulesSection';
 import ArticlesSection from '../components/training/ArticlesSection';
 import VideosSection from '../components/training/VideosSection';
 import UpdatesSection from '../components/training/UpdatesSection';
@@ -149,7 +147,6 @@ const TrainingContent = () => {
   const [activeTab, setActiveTab] = useState('awareness');
   const [contents, setContents] = useState([]);
   const [completedAwareness, setCompletedAwareness] = useState(() => getInitialCompleted('completedAwareness', false));
-  const [completedModules, setCompletedModules] = useState(() => getInitialCompleted('completedModules', []));
   const [completedArticles, setCompletedArticles] = useState(() => getInitialCompleted('completedArticles', []));
   const [completedVideos, setCompletedVideos] = useState(() => getInitialCompleted('completedVideos', []));
   const [news, setNews] = useState([]);
@@ -167,14 +164,10 @@ const TrainingContent = () => {
 
   // Persist completion state to localStorage
   useEffect(() => { localStorage.setItem('completedAwareness', JSON.stringify(completedAwareness)); }, [completedAwareness]);
-  useEffect(() => { localStorage.setItem('completedModules', JSON.stringify(completedModules)); }, [completedModules]);
   useEffect(() => { localStorage.setItem('completedArticles', JSON.stringify(completedArticles)); }, [completedArticles]);
   useEffect(() => { localStorage.setItem('completedVideos', JSON.stringify(completedVideos)); }, [completedVideos]);
 
   // Filter completed items to only those that exist in the current content
-  const validCompletedModules = completedModules.filter(id =>
-    contents.filter(c => c.type === 'module').some(m => m.id === id)
-  );
   const validCompletedArticles = completedArticles.filter(id =>
     [...securityAwarenessBlogs, ...phishingAwarenessBlogs].some(a => a.id === id)
   );
@@ -183,14 +176,12 @@ const TrainingContent = () => {
   );
 
   // Dynamic totals
-  const totalModules = contents.filter(c => c.type === 'module').length;
   const totalVideos = contents.filter(c => c.type === 'video').length;
   const totalArticles = securityAwarenessBlogs.length + phishingAwarenessBlogs.length;
 
   // Dynamic progress
   const progress = {
     awareness: completedAwareness ? 1 : 0,
-    modules: validCompletedModules.length,
     articles: validCompletedArticles.length,
     videos: validCompletedVideos.length,
     updates: 0
@@ -198,7 +189,6 @@ const TrainingContent = () => {
 
   const totals = {
     awareness: 1,
-    modules: totalModules,
     articles: totalArticles,
     videos: totalVideos,
     updates: 2
@@ -251,9 +241,6 @@ const TrainingContent = () => {
   const handleCompleteAwareness = () => {
     setCompletedAwareness(true);
   };
-  const handleCompleteModule = (moduleId) => {
-    setCompletedModules(prev => prev.includes(moduleId) ? prev : [...prev, moduleId]);
-  };
   const handleCompleteArticle = (articleId) => {
     setCompletedArticles(prev => prev.includes(articleId) ? prev : [...prev, articleId]);
   };
@@ -274,7 +261,6 @@ const TrainingContent = () => {
                   { id: 'awareness', label: 'Awareness', icon: BookOpen, description: 'Master the fundamentals of phishing defense through expert-led security protocols and best practices' },       
                   { id: 'articles', label: 'Articles', icon: Newspaper, description: 'In-depth analysis of emerging cyber threats and advanced defense methodologies' },
                   { id: 'videos', label: 'Videos', icon: Video, description: 'Expert-led demonstrations and real-world scenarios showcasing effective threat mitigation strategies' },
-                  { id: 'modules', label: 'Modules', icon: GraduationCap, description: 'Structured learning pathways designed to enhance your cybersecurity knowledge and skills' },
                   { id: 'progress', label: 'Progress', icon: BarChart3, description: 'Comprehensive analytics dashboard for monitoring your cybersecurity training advancement' },
                   { id: 'updates', label: 'Updates', icon: Shield, description: 'Real-time security intelligence and critical threat advisories' }
                 ].map(tab => (
@@ -297,7 +283,6 @@ const TrainingContent = () => {
                 <p className="text-blue-200 text-lg md:text-xl font-semibold tracking-wide leading-relaxed">
                   {[
                     { id: 'awareness', description: 'Master the fundamentals of phishing defense through expert-led security protocols and best practices' },
-                    { id: 'modules', description: 'Structured learning pathways designed to enhance your cybersecurity knowledge and skills' },
                     { id: 'articles', description: 'In-depth analysis of emerging cyber threats and advanced defense methodologies' },
                     { id: 'videos', description: 'Expert-led demonstrations and real-world scenarios showcasing effective threat mitigation strategies' },
                     { id: 'progress', description: 'Comprehensive analytics dashboard for monitoring your cybersecurity training advancement' },
@@ -314,14 +299,6 @@ const TrainingContent = () => {
               <AwarenessSection
                 completedAwareness={completedAwareness}
                 handleCompleteAwareness={handleCompleteAwareness}
-              />
-            )}
-
-            {activeTab === 'modules' && (
-              <ModulesSection
-                contents={contents}
-                validCompletedModules={validCompletedModules}
-                handleCompleteModule={handleCompleteModule}
               />
             )}
 
@@ -356,7 +333,6 @@ const TrainingContent = () => {
                     className="px-8 py-4 bg-red-500 text-white rounded-2xl shadow-lg hover:bg-red-600 transition-all duration-300 font-bold text-lg flex items-center gap-2 transform hover:scale-105 tracking-wide"
                     onClick={() => {
                       localStorage.removeItem('completedAwareness');
-                      localStorage.removeItem('completedModules');
                       localStorage.removeItem('completedArticles');
                       localStorage.removeItem('completedVideos');
                       window.location.reload();

@@ -32,13 +32,14 @@ class ScanUrlJob implements ShouldQueue
      *
      * @var int
      */
-    public $timeout = 60;
+    public $timeout = 30;
 
     /**
      * Create a new job instance.
      *
      * @param string $url
      * @param string|int $userId
+     * @param string $jobId
      * @return void
      */
     public function __construct(string $url, $userId, string $jobId)
@@ -106,102 +107,51 @@ class ScanUrlJob implements ShouldQueue
             
             // Submit URL for scanning
             $submitResponse = $virusTotalService->submitUrl($this->url);
+            
+            // Extract analysis ID from the response
             $analysisId = $submitResponse['data']['id'] ?? null;
-            
             if (!$analysisId) {
-                throw new \Exception('Failed to get analysis ID from VirusTotal');
+                throw new \Exception('Could not get analysis ID from VirusTotal response');
             }
-            
+
             // Update status
             Cache::put($statusKey, [
                 'status' => 'processing',
                 'progress' => 50,
-                'message' => 'URL submitted, retrieving analysis',
-                'details' => [
-                    'url' => $this->url,
-                    'analysis_id' => $analysisId,
-                    'stage' => 'analysis'
-                ]
+                'message' => 'URL submitted, awaiting analysis results',
+                'details' => ['analysis_id' => $analysisId]
             ], 3600);
-            
-            // Wait a few seconds to allow analysis to begin
-            sleep(2);
-            
-            // Get analysis results
-            $results = $virusTotalService->getAnalysis($analysisId);
-            
-            // Check if analysis is still in progress
-            $status = $results['data']['attributes']['status'] ?? null;
-            if ($status === 'queued') {
-                // If still queued, retry with backoff
-                $this->release(10);
-                
-                // Update status
-                Cache::put($statusKey, [
-                    'status' => 'processing',
-                    'progress' => 60,
-                    'message' => 'Analysis in progress, waiting for results',
-                    'details' => [
-                        'url' => $this->url,
-                        'analysis_id' => $analysisId,
-                        'stage' => 'waiting',
-                        'attempt' => $this->attempts()
-                    ]
-                ], 3600);
-                
-                return;
-            }
-            
-            // Process and cache results
-            $processedResults = $virusTotalService->processResults($results, [
-                'url' => $this->url,
-                'scan_id' => $analysisId,
-                'job_id' => $this->jobId,
-                'user_id' => $this->userId
-            ]);
-            
+
+            // Wait for analysis to complete
+            $analysisResult = $virusTotalService->waitForAnalysisCompletion($analysisId);
+
+            // Process and cache the final results
+            $processedResults = $virusTotalService->processResults($analysisResult, ['url' => $this->url]);
             $virusTotalService->cacheResults($cacheKey, $processedResults);
-            
-            // Update status to completed
+
+            // Final status update
             Cache::put($statusKey, [
                 'status' => 'completed',
                 'progress' => 100,
-                'message' => 'Analysis completed successfully',
+                'message' => 'Analysis complete',
                 'results' => $processedResults,
-                'fromCache' => false,
-                'details' => [
-                    'url' => $this->url,
-                    'analysis_id' => $analysisId,
-                    'completed_at' => now()->toDateTimeString(),
-                    'threat_level' => $processedResults['threat_level'],
-                    'is_malicious' => $processedResults['is_malicious'],
-                    'is_suspicious' => $processedResults['is_suspicious']
-                ]
+                'fromCache' => false
             ], 3600);
-            
+
         } catch (\Exception $e) {
-            Log::error('URL scanning job failed', [
-                'url' => $this->url,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            Log::error('URL scan job failed', [
+                'jobId' => $this->jobId, 
+                'url' => $this->url, 
+                'error' => $e->getMessage()
             ]);
-            
-            // Update status to failed
+
             Cache::put($statusKey, [
                 'status' => 'failed',
-                'progress' => 100,
-                'message' => 'Analysis failed: ' . $e->getMessage(),
-                'details' => [
-                    'url' => $this->url,
-                    'error' => $e->getMessage(),
-                    'failed_at' => now()->toDateTimeString()
-                ]
+                'message' => 'An error occurred during analysis',
+                'error' => $e->getMessage()
             ], 3600);
-            
-            // If we should retry
-            if ($this->attempts() < $this->tries) {
-                $this->release(30 * $this->attempts()); // Exponential backoff
-            }
+
+            $this->fail($e);
         }
     }
-} 
+}
