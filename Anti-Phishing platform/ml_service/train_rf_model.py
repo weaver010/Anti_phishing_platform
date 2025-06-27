@@ -93,4 +93,4 @@ voting_clf = VotingClassifier(
 voting_clf.fit(X_train, y_train)
 
 # Save the ensemble model
-joblib.dump(voting_clf, 'ensemble_url_model.joblib')
+joblib.dump(voting_clf, 'rf_url_model.joblib')
